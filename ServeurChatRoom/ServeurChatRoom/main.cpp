@@ -195,14 +195,15 @@ int main(int argc, char* argv[]) {
 			}
 		}
 		});
-	sendThread.join();
+
 	while (true) {
 		std::string msg;
 		RecieveMsg(sock, msg);
 		
 		std::cout << msg << std::endl;
 	}
-	
+	sendThread.join();
+
 #endif
 #ifdef CHATROOM
 	std::cout << "***LANCEMENT DE LA CHATROOM***" << std::endl;
