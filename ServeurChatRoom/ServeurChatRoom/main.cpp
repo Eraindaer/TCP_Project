@@ -365,6 +365,7 @@ int main(int argc, char* argv[]) {
 				std::string welcome = "Bonjour " + clName;
 				std::cout << welcome << std::endl;
 				welcome = "SERVER : " + welcome;
+				welcome += "\nSi vous souhaitez voir la liste des commandes, tapez \"/help\" ou \"/?\"";
 				std::string msg = clName + " a rejoint la room";
 				for (unsigned int i = 0; i < master.fd_count; i++) {
 					SOCKET outSock = master.fd_array[i];
