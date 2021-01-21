@@ -1,2 +1,4 @@
-﻿  main.cpp
+﻿  ChatRoom.cpp
+G:\Repos\C++ Repos\ServeurChatRoom\ServeurChatRoom\ChatRoom.cpp(191,29): warning C4018: '<' : incompatibilité signed/unsigned
+G:\Repos\C++ Repos\ServeurChatRoom\ServeurChatRoom\ChatRoom.cpp(230,28): warning C4101: 'ex' : variable locale non référencée
   ServeurChatRoom.vcxproj -> G:\Repos\C++ Repos\ServeurChatRoom\client\ServeurChatRoom.exe
