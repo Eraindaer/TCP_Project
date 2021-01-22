@@ -1,28 +1,30 @@
 #include "Server.h"
 #include "ChatRoom.h"
 #include "Client.h"
+#include <thread>
 
 int main(int argc, char* argv[]) {
 	WinSockManager WSM;
+
 #ifdef CLIENT
 
 	Client client(WSM);
-	int port;
-	try {
+	bool isConnected = false;
+	while (!isConnected) {
+		int port;
 		std::cin >> port;
+		std::cin.ignore();
+		std::string name;
+		std::getline(std::cin, name);
+		try {
+			client.InitSocket(port, name, isConnected);
+		}
+		catch (std::exception& ex) {
+			std::cout << "ERREUR : " << ex.what() << std::endl;
+			std::cout << "Veuillez réinscrire votre nom et le port" << std::endl;
+		}
 	}
-	catch (std::exception& ex) {
-		std::cout << "ERREUR : port non-numérique" << std::endl;
-		ExitProcess(EXIT_FAILURE);
-	}
-	std::cin.ignore();
-	std::string name;
-	std::getline(std::cin, name);
-	client.InitSocket(port, name);
-
-	std::thread sendThread([&client]() {while (true) {
-		client.SendingClient();
-	}});
+	std::thread sendThread([&client]() { while (true) { client.SendingClient();}});
 	while (true) {
 		client.ReceivingClient();
 	}
@@ -34,16 +36,24 @@ int main(int argc, char* argv[]) {
 
 	int serverPort;
 	std::cin >> serverPort;
-	chatRoom.InitServerConnection(serverPort);
+	try {
+		chatRoom.InitServerConnection(serverPort);
+	}
+	catch (int& e) {
+		std::cout << "Session terminée. Code d'erreur : " << e << std::endl;
+		ExitProcess(EXIT_FAILURE);
+	}
 	std::cin.ignore();
 	int chatRoomPort;
 	std::cin >> chatRoomPort;
-	chatRoom.InitSocket(chatRoomPort);
-
-	chatRoom.InitCommands();
-	std::thread serverRoutine([&chatRoom]() {while (true) {
-		chatRoom.RoutineChatRoom();
-	}});
+	try {
+		chatRoom.InitSocket(chatRoomPort);
+	}
+	catch (int& e) {
+		std::cout << "Session terminée. Code d'erreur : " << e << std::endl;
+		ExitProcess(EXIT_FAILURE);
+	}
+	std::thread serverRoutine([&chatRoom]() { while (true) { chatRoom.RoutineChatRoom(); }});
 	serverRoutine.join();
 #endif
 #ifdef SERVER
@@ -51,14 +61,15 @@ int main(int argc, char* argv[]) {
 	Server server(WSM);
 	
 	int port;
+	std::cin >> port;
+
 	try {
-		std::cin >> port;
+		server.InitSocket(port);
 	}
 	catch (std::exception& ex) {
-		std::cout << "ERREUR : port non-numérique" << std::endl;
+		std::cout << "Erreur : " << ex.what() << std::endl;
 		ExitProcess(EXIT_FAILURE);
 	}
-	server.InitSocket(port);
 	while (true) {
 		server.ServerRoutine();
 	}

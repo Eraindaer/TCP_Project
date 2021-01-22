@@ -1,5 +1,6 @@
 #pragma once
 #include "WinSockManager.h"
+
 class Server
 {
 public:
@@ -10,8 +11,7 @@ public:
 	void ServerRoutine();
 
 private:
-	WinSockManager WSM;
-	SOCKET server;
-	fd_set master;
-	int roomPort;
+	WinSockManager				WSM;
+	SOCKET						server;
+	fd_set						master;
 };

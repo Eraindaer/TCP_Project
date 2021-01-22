@@ -328,6 +328,9 @@
   <ItemGroup>
     <ClCompile Include="ChatRoom.cpp" />
     <ClCompile Include="Client.cpp" />
+    <ClCompile Include="CommandManager.cpp" />
+    <ClCompile Include="ErrorHandler.cpp" />
+    <ClCompile Include="Logger.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Server.cpp" />
     <ClCompile Include="WinSockManager.cpp" />
@@ -335,6 +338,9 @@
   <ItemGroup>
     <ClInclude Include="ChatRoom.h" />
     <ClInclude Include="Client.h" />
+    <ClInclude Include="CommandManager.h" />
+    <ClInclude Include="ErrorHandler.h" />
+    <ClInclude Include="Logger.h" />
     <ClInclude Include="Server.h" />
     <ClInclude Include="WinSockManager.h" />
   </ItemGroup>

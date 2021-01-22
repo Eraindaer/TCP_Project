@@ -16,23 +16,23 @@ void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg)
 {
 	unsigned int msgSize = msg.size();
 	if (send(sock, (char*)&msgSize, sizeof(int), 0) == SOCKET_ERROR)
-		ExitProcess(EXIT_FAILURE);
+		return;
 	if (send(sock, msg.c_str(), msgSize, 0) == SOCKET_ERROR)
-		ExitProcess(EXIT_FAILURE);
+		return;
 }
 
 void WinSockManager::RecieveMsg(const SOCKET& sock, std::string& msg)
 {
 	int size;
 	if (recv(sock, reinterpret_cast<char*>(&size), sizeof(int), 0) == SOCKET_ERROR)
-		ExitProcess(EXIT_FAILURE);
+		return;
 	char* buffer = new char[size + 1];
 	if (recv(sock, buffer, size, 0) == SOCKET_ERROR) {
 		delete[]buffer;
-		ExitProcess(EXIT_FAILURE);
+		return;
 	}
 	if (size == 0)
-		ExitProcess(EXIT_FAILURE);
+		return;
 	else
 	{
 		buffer[size] = '\0';

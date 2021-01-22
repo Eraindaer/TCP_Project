@@ -3,17 +3,18 @@
 Server::Server(const WinSockManager& WSM)
 {
 	this->WSM = WSM;
+	server = NULL;
 	std::cout << "***LANCEMENT DU SERVEUR***" << std::endl;
 	std::cout << "\nVeuillez entrer le port du server" << std::endl;
 }
 
 Server::~Server()
 {
+	closesocket(server);
 }
 
 void Server::InitSocket(const int& port)
 {
-	roomPort = port;
 	SOCKADDR_IN sin;
 	server = socket(AF_INET, SOCK_STREAM, 0);
 	if (server != INVALID_SOCKET) {
@@ -21,8 +22,10 @@ void Server::InitSocket(const int& port)
 		sin.sin_port = htons(port);
 		sin.sin_family = AF_INET;
 	}
-	else
-		ExitProcess(EXIT_FAILURE);
+	else {
+		throw std::invalid_argument("Impossible d'initialiser la session. Fin de la session");
+		return;
+	}
 
 	std::cout << "\nVeuillez ouvrir autant de chatrooms que vous le souhaitez" << std::endl;
 

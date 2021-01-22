@@ -1,0 +1,16 @@
+[21:28:52] : ***LANCEMENT DE LA CHATROOM***
+[21:28:52] : 
+Veuillez entrer le port du serveur
+[21:28:54] : ***CONNEXION AU SERVER***
+[21:28:54] : >>chatroom
+[21:28:54] : 
+Veuillez entrer le port de la chatroom
+[21:28:55] : 
+***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***
+[21:28:55] : ROOM***
+[21:29:1] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[21:29:1] : >>test a rejoint la room
+[21:29:1] : >>SERVER : Bonjour test
+Bienvenue dans chatroom
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"

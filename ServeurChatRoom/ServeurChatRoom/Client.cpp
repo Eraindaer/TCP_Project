@@ -3,15 +3,17 @@
 Client::Client(const WinSockManager& WSM)
 {
 	this->WSM = WSM;
+	sock = NULL;
 	std::cout << "***LANCEMENT DU CLIENT***" << std::endl;
 	std::cout << "\nVeuillez entrer le port indiqué sur l'une des chatrooms ainsi que votre nom" << std::endl;
 }
 
 Client::~Client()
 {
+	closesocket(sock);
 }
 
-void Client::InitSocket(const int& port, const std::string& name)
+void Client::InitSocket(const int& port, const std::string& name, bool& isConnected)
 {
 	this->name = name;
 	while (this->name[0] == '/') {
@@ -30,16 +32,27 @@ void Client::InitSocket(const int& port, const std::string& name)
 		sin.sin_port = htons(port);
 		sin.sin_family = AF_INET;
 	}
-	else
-		ExitProcess(EXIT_FAILURE);
-	if (connect(sock, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR) {
-		std::cout << "Client connecté" << std::endl;
-		std::cout << "Votre nom :" << name << std::endl;
-		std::cout << "Le port que vous avez choisi" << port << std::endl;
-		WSM.SendMsg(sock, name);
+	else {
+		throw std::invalid_argument("Impossible d'initialiser la session. Fin de la session");
+		return;
 	}
-	else
-		ExitProcess(EXIT_FAILURE);
+	if (connect(sock, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR) {
+		WSM.SendMsg(sock, name);
+		std::string returnValue;
+		WSM.RecieveMsg(sock, returnValue);
+		if (returnValue == "-1") {
+			throw std::invalid_argument("Nom déjà pris. Veuillez en choisir un autre");
+			return;
+		}
+		std::cout << "Client connecté" << std::endl;
+		std::cout << "Votre nom : " << name << std::endl;
+		std::cout << "Le port que vous avez choisi : " << port << std::endl;
+	}
+	else {
+		throw std::invalid_argument("Impossible de se connecter. Fin de la session");
+		return;
+	}
+	isConnected = true;
 }
 
 void Client::SendingClient()
