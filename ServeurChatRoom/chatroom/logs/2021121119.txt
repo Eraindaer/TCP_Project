@@ -1,0 +1,38 @@
+[21:11:9] : ***LANCEMENT DE LA CHATROOM***
+[21:11:9] : 
+Veuillez entrer le port du serveur
+[21:11:14] : ***CONNEXION AU SERVER***
+[21:11:14] : >>chatroom
+[21:11:14] : 
+Veuillez entrer le port de la chatroom
+[21:11:15] : 
+***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***
+[21:11:15] : TE A LA CHATROOM***
+[21:11:21] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[21:11:21] : >>test a rejoint la room
+[21:11:21] : >>SERVER : Bonjour test
+Bienvenue dans chatroom
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"
+[21:11:23] : test : 0
+[21:11:24] : test : 1
+[21:11:25] : test : 2
+[21:11:25] : test : 3
+[21:11:26] : test : 4
+[21:11:26] : test : 5
+[21:11:26] : test : 6
+[21:11:27] : test : 7
+[21:11:27] : test : 8
+[21:11:28] : test : 9
+[21:11:29] : test : 10
+[21:11:31] : test : hello*
+[21:11:35] : <</rng 48 79
+[21:11:35] : >>SERVER : Le dé est jeté ! Vous obtenez : 50
+[21:11:38] : <</rng 10 15
+[21:11:38] : >>SERVER : Le dé est jeté ! Vous obtenez : 15
+[21:14:1] : <</rng 10 15
+[21:14:1] : >>SERVER : Le dé est jeté ! Vous obtenez : 14
+[21:14:4] : test : hello
+[21:14:5] : test : yes
+[21:14:7] : test : ‡a marche
+[21:14:9] : test : enfinnnn

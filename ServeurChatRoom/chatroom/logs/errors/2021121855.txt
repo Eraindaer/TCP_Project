@@ -1,0 +1,1 @@
+[21:9:0] : ERREUR : Impossible de se connecter au serveur. Fin de la session
