@@ -14,30 +14,94 @@ WinSockManager::~WinSockManager()
 
 void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg)
 {
-	unsigned int msgSize = msg.size();
+	std::map<char, std::string> code;
+	std::string compressedMsg = Compression(msg, code);
+
+	//Envoi taille du message initial
+	int msgSize = msg.size();
 	if (send(sock, (char*)&msgSize, sizeof(int), 0) == SOCKET_ERROR)
 		return;
-	if (send(sock, msg.c_str(), msgSize, 0) == SOCKET_ERROR)
+
+	//Envoi message compressé avec sa taille
+	int compressedMsgSize = compressedMsg.size();
+	if (send(sock, (char*)&compressedMsgSize, sizeof(int), 0) == SOCKET_ERROR)
+		return;
+	if (send(sock, compressedMsg.c_str(), compressedMsgSize, 0) == SOCKET_ERROR)
+		return;
+
+	//"Conversion" map->string 
+	std::string codeString = "";
+	for (auto& entry : code) {
+		codeString += entry.first + entry.second;
+	}
+	//Envoi clé
+	int sizeOfKey = codeString.size();
+	if (send(sock, (char*)&sizeOfKey, sizeof(int), 0) == SOCKET_ERROR)
+		return;
+	if (send(sock, codeString.c_str(), sizeOfKey, 0) == SOCKET_ERROR)
 		return;
 }
 
 void WinSockManager::RecieveMsg(const SOCKET& sock, std::string& msg)
 {
+	//Réception taille message initial
 	int size;
 	if (recv(sock, reinterpret_cast<char*>(&size), sizeof(int), 0) == SOCKET_ERROR)
 		return;
-	char* buffer = new char[size + 1];
-	if (recv(sock, buffer, size, 0) == SOCKET_ERROR) {
+
+	//Réception message compressé
+	int compressedSize;
+	if (recv(sock, reinterpret_cast<char*>(&compressedSize), sizeof(int), 0) == SOCKET_ERROR)
+		return;
+	char* buffer = new char[compressedSize + 1];
+	if (recv(sock, buffer, compressedSize, 0) == SOCKET_ERROR) {
 		delete[]buffer;
 		return;
 	}
+	//Réception clé
+	unsigned int sizeOfKey;
+	if (recv(sock, reinterpret_cast<char*>(&sizeOfKey), sizeof(unsigned int), 0) == SOCKET_ERROR)
+		return;
+	std::map<char, std::string> code;
+	char* bufferKey = new char[sizeOfKey + 1];
+	if (recv(sock, bufferKey, sizeOfKey, 0) == SOCKET_ERROR) {
+		delete[]bufferKey;
+		delete[]buffer;
+		return;
+	}
+	std::string codeString;
+	if (sizeOfKey == 0)
+		return;
+	else {
+		bufferKey[sizeOfKey] = '\0';
+		std::string temp(bufferKey);
+		codeString = temp;
+		codeString.resize(sizeOfKey);
+		delete[]bufferKey;
+	}
+
+	//"Conversion" string->map
+	char letter = codeString[0];
+	std::string compressedLetter = "";
+	for (unsigned int i = 1; i < codeString.size(); i++) {
+		if (codeString[i] == '0' || codeString[i] == '1')
+			compressedLetter += codeString[i];
+		else {
+			code.insert(std::make_pair(letter, compressedLetter));
+			letter = codeString[i];
+			compressedLetter = "";
+		}
+	}
+	code.insert(std::make_pair(letter, compressedLetter));
+
+	//Décompression du message
 	if (size == 0)
 		return;
 	else
 	{
-		buffer[size] = '\0';
+		buffer[compressedSize] = '\0';
 		std::string temp(buffer);
-		msg = temp;
+		msg = Decompression(code, temp);
 		msg.resize(size);
 	}
 	delete[]buffer;

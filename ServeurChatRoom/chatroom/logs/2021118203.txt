@@ -1,0 +1,18 @@
+[18:20:3] : ***LANCEMENT DE LA CHATROOM***
+[18:20:3] : 
+Veuillez entrer le port du serveur
+[18:20:4] : ***CONNEXION AU SERVER***
+[18:20:4] : >>chatroom
+[18:20:4] : 
+Veuillez entrer le port de la chatroom
+[18:20:6] : 
+***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***
+[18:20:6] : TE A LA CHATROOM***
+[18:20:14] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[18:20:14] : >>test a rejoint la room
+[18:20:14] : >>SERVER : Bonjour test
+Bienvenue dans chatroom
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"
+[18:20:17] : test : parfait
+[18:20:22] : test : ‡a fonctionne parfaitement

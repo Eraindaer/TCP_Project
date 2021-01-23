@@ -1,0 +1,34 @@
+[18:22:8] : ***LANCEMENT DE LA CHATROOM***
+[18:22:8] : 
+Veuillez entrer le port du serveur
+[18:22:9] : ***CONNEXION AU SERVER***
+[18:22:9] : >>chatroom
+[18:22:9] : 
+Veuillez entrer le port de la chatroom
+[18:22:10] : 
+***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***
+[18:22:10] : TE A LA CHATROOM***
+[18:22:18] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[18:22:18] : >>tttest a rejoint la room
+[18:22:18] : >>SERVER : Bonjour tttest
+Bienvenue dans chatroom
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"
+[18:22:33] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[18:22:33] : >>test2 a rejoint la room
+[18:22:33] : >>SERVER : Bonjour test2
+Bienvenue dans chatroom
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"
+[18:22:40] : test2 : hello
+[18:22:42] : test2 : comment vas tu
+[18:22:46] : tttest : je vais bien et toi ?
+[18:22:54] : test2 : je vais bien merci beaucoup
+[18:23:2] : <</roomname La salle de test
+[18:23:2] : >>SERVER : Changement du nom de la room pour : La salle de test 
+[18:23:8] : ***CLIENT CONNECTE A LA CHATROOM***:
+
+[18:23:8] : >>test3 a rejoint la room
+[18:23:8] : >>SERVER : Bonjour test3
+Bienvenue dans La salle de test 
+Si vous souhaitez voir la liste des commandes, tapez "/help" ou "/?"
