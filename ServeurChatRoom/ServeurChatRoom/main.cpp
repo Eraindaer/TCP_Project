@@ -5,9 +5,8 @@
 
 int main(int argc, char* argv[]) {
 	WinSockManager WSM;
-
 #ifdef CLIENT
-
+	//Initialisation du client
 	Client client(WSM);
 	bool isConnected = false;
 	while (!isConnected) {
@@ -16,60 +15,51 @@ int main(int argc, char* argv[]) {
 		std::cin.ignore();
 		std::string name;
 		std::getline(std::cin, name);
-		try {
-			client.InitSocket(port, name, isConnected);
-		}
-		catch (std::exception& ex) {
-			std::cout << "ERREUR : " << ex.what() << std::endl;
-			std::cout << "Veuillez réinscrire votre nom et le port" << std::endl;
-		}
+
+		//Initialisation du socket
+		TryCatchCheck([&client, &port, &name, &isConnected]() {client.InitSocket(port, name, isConnected); });
 	}
+
+	//Routine Envoi messages
 	std::thread sendThread([&client]() { while (true) { client.SendingClient();}});
+
+	//Réception messages
 	while (true) {
 		client.ReceivingClient();
 	}
 	sendThread.join();
-
 #endif
 #ifdef CHATROOM
+	//Initialisation de la chatroom
 	ChatRoom chatRoom(WSM);
-
 	int serverPort;
 	std::cin >> serverPort;
-	try {
-		chatRoom.InitServerConnection(serverPort);
+
+	//Connexion au serveur général
+	TryCatchCheck([&chatRoom, &serverPort]() {chatRoom.InitServerConnection(serverPort); });
+	bool isOpen = false;
+	while (!isOpen) {
+		std::cin.ignore();
+		int chatRoomPort;
+		std::cin >> chatRoomPort;
+		//Initialisation socket
+		TryCatchCheck([&chatRoom, &chatRoomPort, &isOpen]() {chatRoom.InitSocket(chatRoomPort, isOpen); });
 	}
-	catch (int& e) {
-		std::cout << "Session terminée. Code d'erreur : " << e << std::endl;
-		ExitProcess(EXIT_FAILURE);
-	}
-	std::cin.ignore();
-	int chatRoomPort;
-	std::cin >> chatRoomPort;
-	try {
-		chatRoom.InitSocket(chatRoomPort);
-	}
-	catch (int& e) {
-		std::cout << "Session terminée. Code d'erreur : " << e << std::endl;
-		ExitProcess(EXIT_FAILURE);
-	}
+
+	//Routine Chatroom
 	std::thread serverRoutine([&chatRoom]() { while (true) { chatRoom.RoutineChatRoom(); }});
 	serverRoutine.join();
 #endif
 #ifdef SERVER
-
+	//Initialisation du serveur
 	Server server(WSM);
-	
 	int port;
 	std::cin >> port;
 
-	try {
-		server.InitSocket(port);
-	}
-	catch (std::exception& ex) {
-		std::cout << "Erreur : " << ex.what() << std::endl;
-		ExitProcess(EXIT_FAILURE);
-	}
+	//Initialisation socket
+	TryCatchCheck([&server, &port]() {server.InitSocket(port);});
+
+	//Routine Serveur
 	while (true) {
 		server.ServerRoutine();
 	}

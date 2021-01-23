@@ -24,6 +24,7 @@ void ChatRoom::InitServerConnection(const int& port)
 	SOCKADDR_IN sinServ;
 
 	connectToServer = socket(AF_INET, SOCK_STREAM, 0);
+	//Initialisation socket pour connexion au serveur général
 	try {
 		if (connectToServer != INVALID_SOCKET) {
 			sinServ.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
@@ -36,10 +37,11 @@ void ChatRoom::InitServerConnection(const int& port)
 	}
 	catch (std::exception& e) {
 		errorHandler.HandleExceptionChatRoom(e, logger);
-		throw 10;
+		throw 16;
 		return;
 	}
 	
+	//Connexion au serveur général
 	try {
 		if (connect(connectToServer, (sockaddr*)&sinServ, sizeof(sinServ)) != SOCKET_ERROR) {
 			std::cout << "***CONNEXION AU SERVER***" << std::endl;
@@ -51,7 +53,7 @@ void ChatRoom::InitServerConnection(const int& port)
 	}
 	catch (std::exception& e) {
 		errorHandler.HandleExceptionChatRoom(e, logger);
-		throw 45;
+		throw 17;
 		return;
 	}
 	WSM.SendMsg(connectToServer, name);
@@ -60,11 +62,11 @@ void ChatRoom::InitServerConnection(const int& port)
 	logger.WriteLine("\nVeuillez entrer le port de la chatroom");
 }
 
-void ChatRoom::InitSocket(const int& port)
+void ChatRoom::InitSocket(const int& port, bool& isOpen)
 {
 	try {
 		if (port == serverPort) {
-			throw std::invalid_argument("Impossible d'initialiser le salon. Fin de la session");
+			throw std::invalid_argument("Port déjà pris par le serveur général. Veuillez en choisir un autre.");
 		}
 	}
 	catch (std::exception& e) {
@@ -75,6 +77,7 @@ void ChatRoom::InitSocket(const int& port)
 
 	SOCKADDR_IN sin;
 	server = socket(AF_INET, SOCK_STREAM, 0);
+	//Initialisation socket chatroom
 	try {
 		if (server != INVALID_SOCKET) {
 			sin.sin_addr.S_un.S_addr = ADDR_ANY;
@@ -87,7 +90,7 @@ void ChatRoom::InitSocket(const int& port)
 	}
 	catch (std::exception& e) {
 		errorHandler.HandleExceptionChatRoom(e, logger);
-		throw 10;
+		throw 16;
 		return;
 	}
 
@@ -103,6 +106,7 @@ void ChatRoom::InitSocket(const int& port)
 	FD_SET(server, &master);
 
 	commandManager.InitCommands(WSM, server, master, logger, name);
+	isOpen = true;
 }
 
 void ChatRoom::RoutineChatRoom()
@@ -112,9 +116,12 @@ void ChatRoom::RoutineChatRoom()
 	for (int i = 0; i < socketCount; i++) {
 		SOCKET sock = copy.fd_array[i];
 		if (sock == server) {
+			//Acceuil nouveaux clients
 			SOCKET client = accept(server, nullptr, nullptr);
 			std::string clName;
 			WSM.RecieveMsg(client, clName);
+
+			//Vérification du nom
 			try {
 				logger.AddClient(clName);
 			}
@@ -125,6 +132,8 @@ void ChatRoom::RoutineChatRoom()
 				return;
 			}
 			WSM.SendMsg(client, "0");
+
+			//Ajout client à la chatroom
 			FD_SET(client, &master);
 			std::cout << "***CLIENT CONNECTE A LA CHATROOM***" << std::endl;
 			logger.WriteLine("***CLIENT CONNECTE A LA CHATROOM***:\n");
@@ -145,9 +154,11 @@ void ChatRoom::RoutineChatRoom()
 			logger.WriteLine(">>" + welcome);
 		}
 		else {
+			//Réception commandes et messages
 			std::string msg;
 			WSM.RecieveMsg(sock, msg);
 			if (msg[0] == '/') {
+				//Réception commandes
 				logger.WriteLine("<<" + msg);
 				std::string word = "";
 				std::vector<std::string> args;
@@ -160,6 +171,7 @@ void ChatRoom::RoutineChatRoom()
 						word += msg[i];
 				}
 				args.push_back(word);
+				//Execution commandes
 				try {
 					commandManager.Execute(args, sock);
 				}
@@ -168,8 +180,7 @@ void ChatRoom::RoutineChatRoom()
 				}
 			}
 			else {
-				std::map<char, std::string> code;
-				//std::string compressedMsg = Compression(msg, code);
+				//Reception messages
 				int bytesIn = msg.size();
 				if (bytesIn <= 0) {
 					closesocket(sock);
@@ -181,7 +192,6 @@ void ChatRoom::RoutineChatRoom()
 					for (unsigned int i = 0; i < master.fd_count; i++) {
 						SOCKET outSock = master.fd_array[i];
 						if (outSock != server && outSock != sock) {
-							//std::string uncompressedMsg = Decompression(code, compressedMsg);
 							WSM.SendMsg(outSock, msg);
 						}
 					}

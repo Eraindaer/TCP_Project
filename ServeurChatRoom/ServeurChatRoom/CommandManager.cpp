@@ -10,13 +10,14 @@ CommandManager::~CommandManager()
 }
 void CommandManager::InitCommands(WinSockManager& WSM, const SOCKET& server, const fd_set& master, Logger& log, std::string& name)
 {
+	///***************************************Initialisation des commandes********************************\\\ 
 	// /? /help -> Give all commands
 	commandList["help"] = [&WSM, &log](const std::vector<std::string>& args, const SOCKET& outSock) {
 		if (args.size() != 1) {
 			throw std::invalid_argument("Arguments invalides");
 			return;
 		}
-		std::string serverMsg = "Liste des commandes : \n/clear -> Nettoie la fenêtre du client \n/say [something] -> permet d'afficher un texte pour tout le mondevia le serveur\n/TicTacToe -> permet d'exécuter le jeu TicTacToe\n/write [name] [text] -> Permet d'écrire le [text] dans un .txt avec le [name]\n/read [name] -> Permet de lire un .txt ayant le même nom que [name]\n/rng [number1] [number2] -> Affiche un nombre aléatoire entre [number1] et [number2]";
+		std::string serverMsg = "Liste des commandes : \n/clear -> Nettoie la fenêtre du client \n/say [something] -> permet d'afficher un texte pour tout le mondevia le serveur\n/TicTacToe -> permet d'exécuter le jeu TicTacToe\n/write [name] [text] -> Permet d'écrire le [text] dans un .txt avec le [name]\n/read [name] -> Permet de lire un .txt ayant le même nom que [name]\n/delete [name] -> Permet de supprimer le .txt ayant le même nom que [name]\n/rng [number1] [number2] -> Affiche un nombre aléatoire entre [number1] et [number2]\n/roomname [name] -> Permet de changer le nom de la room pour [name]";
 		log.WriteLine(">>" + serverMsg);
 		WSM.SendMsg(outSock, serverMsg);
 	};
@@ -165,6 +166,7 @@ void CommandManager::InitCommands(WinSockManager& WSM, const SOCKET& server, con
 			}
 		}
 	};
+	///***************************************************************************************************\\\ 
 }
 
 void CommandManager::Execute(const std::vector<std::string>& args, const SOCKET& sock)

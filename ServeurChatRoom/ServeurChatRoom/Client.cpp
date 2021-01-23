@@ -27,21 +27,24 @@ void Client::InitSocket(const int& port, const std::string& name, bool& isConnec
 	SOCKADDR_IN sin;
 
 	sock = socket(AF_INET, SOCK_STREAM, 0);
+
+	//Vérification socket client
 	if (sock != INVALID_SOCKET) {
 		sin.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 		sin.sin_port = htons(port);
 		sin.sin_family = AF_INET;
 	}
 	else {
-		throw std::invalid_argument("Impossible d'initialiser la session. Fin de la session");
+		throw 16;
 		return;
 	}
+	//Tentative de connexion et vérification nom client
 	if (connect(sock, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR) {
 		WSM.SendMsg(sock, name);
 		std::string returnValue;
 		WSM.RecieveMsg(sock, returnValue);
 		if (returnValue == "-1") {
-			throw std::invalid_argument("Nom déjà pris. Veuillez en choisir un autre");
+			throw 21;
 			return;
 		}
 		std::cout << "Client connecté" << std::endl;
@@ -49,7 +52,7 @@ void Client::InitSocket(const int& port, const std::string& name, bool& isConnec
 		std::cout << "Le port que vous avez choisi : " << port << std::endl;
 	}
 	else {
-		throw std::invalid_argument("Impossible de se connecter. Fin de la session");
+		throw 17;
 		return;
 	}
 	isConnected = true;

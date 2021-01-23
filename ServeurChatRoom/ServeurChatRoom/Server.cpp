@@ -17,13 +17,15 @@ void Server::InitSocket(const int& port)
 {
 	SOCKADDR_IN sin;
 	server = socket(AF_INET, SOCK_STREAM, 0);
+
+	//Vérification du socket server
 	if (server != INVALID_SOCKET) {
 		sin.sin_addr.S_un.S_addr = ADDR_ANY;
 		sin.sin_port = htons(port);
 		sin.sin_family = AF_INET;
 	}
 	else {
-		throw std::invalid_argument("Impossible d'initialiser la session. Fin de la session");
+		throw 16;
 		return;
 	}
 
@@ -44,6 +46,7 @@ void Server::ServerRoutine()
 	for (int i = 0; i < socketCount; i++) {
 		SOCKET s = copy.fd_array[i];
 		if (s == server) {
+			//Réception de nouvelles chatroom
 			SOCKET client = accept(server, nullptr, nullptr);
 			FD_SET(client, &master);
 			std::cout << "Nouvelle chatroom créée" << std::endl;

@@ -1,0 +1,5 @@
+[11:30:20] : ERREUR : Port déjà pris par le serveur général. Veuillez en choisir un autre.
+[11:30:52] : ERROR : Ce nom est déjà pris
+[11:31:7] : ERREUR : bad function call
+[11:31:10] : ERREUR : bad function call
+[11:31:34] : ERREUR : Arguments invalides

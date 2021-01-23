@@ -9,7 +9,7 @@ public:
 	~ChatRoom();
 
 	void InitServerConnection(const int& port);
-	void InitSocket(const int& port);
+	void InitSocket(const int& port, bool& isOpen);
 	void RoutineChatRoom();
 
 private:

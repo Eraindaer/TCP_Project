@@ -4,6 +4,8 @@ Logger::Logger()
 {
 	time_t now = time(0);
 	std::tm* ltm = localtime(&now);
+	
+	//Nom du fichier log : AnnéeMoisJourHeureMinuteSeconde
 	std::string baseName = std::to_string(ltm->tm_year + 1900) + std::to_string(ltm->tm_mon + 1) + std::to_string(ltm->tm_hour) + std::to_string(ltm->tm_min) + std::to_string(ltm->tm_sec);
 	fileName = "logs/" + baseName + ".txt";
 	errorFileName = "logs/errors/" + baseName + ".txt";

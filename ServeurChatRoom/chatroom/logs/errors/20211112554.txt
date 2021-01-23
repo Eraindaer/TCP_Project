@@ -1,0 +1,4 @@
+[11:25:58] : ERREUR : Port déjà pris par le serveur général. Veuillez en choisir un autre.
+[11:26:25] : ERROR : Ce nom est déjà pris
+[11:26:58] : ERROR : Ce nom est déjà pris
+[11:29:0] : ERROR : Ce nom est déjà pris
