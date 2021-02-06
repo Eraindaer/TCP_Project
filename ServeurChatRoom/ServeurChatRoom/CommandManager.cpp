@@ -1,13 +1,5 @@
 #include "CommandManager.h"
 
-CommandManager::CommandManager()
-{
-}
-
-CommandManager::~CommandManager()
-{
-	commandList.clear();
-}
 void CommandManager::InitCommands(WinSockManager& WSM, const SOCKET& server, const fd_set& master, Logger& log, std::string& name)
 {
 	///***************************************Initialisation des commandes********************************\\\ 

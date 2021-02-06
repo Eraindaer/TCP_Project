@@ -13,8 +13,26 @@ Logger::Logger()
 	errorFile.open(errorFileName.c_str());
 }
 
-Logger::~Logger()
-{}
+Logger::Logger(const Logger& newLogger)
+{
+	clientList = newLogger.clientList;
+	Save();
+	file.open(newLogger.fileName);
+	errorFile.open(newLogger.errorFileName);
+	fileName = newLogger.fileName;
+	errorFileName = newLogger.errorFileName;
+}
+
+Logger& Logger::operator=(const Logger& logAssign)
+{
+	clientList = logAssign.clientList;
+	Save();
+	file.open(logAssign.fileName);
+	errorFile.open(logAssign.errorFileName);
+	fileName = logAssign.fileName;
+	errorFileName = logAssign.errorFileName;
+	return *this;
+}
 
 void Logger::AddClient(const std::string & name)
 {

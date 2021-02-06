@@ -7,11 +7,6 @@ WinSockManager::WinSockManager()
 		ExitProcess(EXIT_FAILURE);
 }
 
-WinSockManager::~WinSockManager()
-{
-	WSACleanup();
-}
-
 void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg)
 {
 	std::map<char, std::string> code;
@@ -145,6 +140,11 @@ void WinSockManager::RecieveMsg(const SOCKET& sock, std::string& msg)
 		msg.resize(size);
 	}
 	delete[]buffer;
+}
+
+void WinSockManager::Close() const
+{
+	WSACleanup();
 }
 
 std::string WinSockManager::Compression(std::string sentence, std::map<char, std::string>& code)

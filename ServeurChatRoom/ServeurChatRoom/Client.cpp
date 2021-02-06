@@ -8,9 +8,27 @@ Client::Client(const WinSockManager& WSM)
 	std::cout << "\nVeuillez entrer le port indiqué sur l'une des chatrooms ainsi que votre nom" << std::endl;
 }
 
+Client::Client(const Client& newClient)
+{
+	WSM = newClient.WSM;
+	name = newClient.name;
+	sock = NULL;
+	sock = newClient.sock;
+}
+
 Client::~Client()
 {
+	Close();
+}
+
+Client& Client::operator=(const Client& copyAssign)
+{
+	WSM = copyAssign.WSM;
+	name = copyAssign.name;
 	closesocket(sock);
+	sock = NULL;
+	sock = copyAssign.sock;
+	return *this;
 }
 
 void Client::InitSocket(const int& port, const std::string& name, bool& isConnected)
@@ -83,4 +101,8 @@ void Client::ReceivingClient()
 	std::string msg;
 	WSM.RecieveMsg(sock, msg);
 	std::cout << msg << std::endl;
+}
+
+void Client::Close() const {
+	closesocket(sock);
 }

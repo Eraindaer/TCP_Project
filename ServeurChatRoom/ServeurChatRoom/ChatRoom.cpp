@@ -3,17 +3,48 @@
 ChatRoom::ChatRoom(const WinSockManager& WSM)
 {
 	this->WSM = WSM;
-	name = "chatroom"; 
+	name = "chatroom";
+	server = NULL;
+	FD_ZERO(&master);
 	std::cout << "***LANCEMENT DE LA CHATROOM***" << std::endl;
-	logger.WriteLine("***LANCEMENT DE LA CHATROOM***");
+	logger->WriteLine("***LANCEMENT DE LA CHATROOM***");
 	std::cout << "\nVeuillez entrer le port du serveur" << std::endl;
-	logger.WriteLine("\nVeuillez entrer le port du serveur");
+	logger->WriteLine("\nVeuillez entrer le port du serveur");
+}
+
+ChatRoom::ChatRoom(const ChatRoom& newChatRoom)
+{
+	commandManager = std::make_unique<CommandManager>(*newChatRoom.commandManager);
+	logger = std::make_unique<Logger>(*newChatRoom.logger);
+	WSM = newChatRoom.WSM;
+	errorHandler = newChatRoom.errorHandler;
+	name = newChatRoom.name;
+	server = NULL;
+	server = newChatRoom.server;
+	FD_ZERO(&master);
+	master = newChatRoom.master;
+	serverPort = newChatRoom.serverPort;
 }
 
 ChatRoom::~ChatRoom()
 {
+	Close();
+}
+
+ChatRoom& ChatRoom::operator=(const ChatRoom& copyAssign)
+{
+	commandManager = std::make_unique<CommandManager>(*copyAssign.commandManager);
+	logger = std::make_unique<Logger>(*copyAssign.logger);
+	WSM = copyAssign.WSM;
+	errorHandler = copyAssign.errorHandler;
+	name = copyAssign.name;
 	closesocket(server);
-	logger.Save();
+	server = NULL;
+	server = copyAssign.server;
+	FD_ZERO(&master);
+	master = copyAssign.master;
+	serverPort = copyAssign.serverPort;
+	return *this;
 }
 
 void ChatRoom::InitServerConnection(const int& port)
@@ -36,7 +67,7 @@ void ChatRoom::InitServerConnection(const int& port)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, logger);
+		errorHandler.HandleExceptionChatRoom(e, *logger);
 		throw 16;
 		return;
 	}
@@ -45,21 +76,21 @@ void ChatRoom::InitServerConnection(const int& port)
 	try {
 		if (connect(connectToServer, (sockaddr*)&sinServ, sizeof(sinServ)) != SOCKET_ERROR) {
 			std::cout << "***CONNEXION AU SERVER***" << std::endl;
-			logger.WriteLine("***CONNEXION AU SERVER***");
+			logger->WriteLine("***CONNEXION AU SERVER***");
 		}
 		else {
 			throw std::invalid_argument("Impossible de se connecter au serveur. Fin de la session");
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, logger);
+		errorHandler.HandleExceptionChatRoom(e, *logger);
 		throw 17;
 		return;
 	}
 	WSM.SendMsg(connectToServer, name);
-	logger.WriteLine(">>" + name);
+	logger->WriteLine(">>" + name);
 	std::cout << "\nVeuillez entrer le port de la chatroom" << std::endl;
-	logger.WriteLine("\nVeuillez entrer le port de la chatroom");
+	logger->WriteLine("\nVeuillez entrer le port de la chatroom");
 }
 
 void ChatRoom::InitSocket(const int& port, bool& isOpen)
@@ -70,7 +101,7 @@ void ChatRoom::InitSocket(const int& port, bool& isOpen)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, logger);
+		errorHandler.HandleExceptionChatRoom(e, *logger);
 		throw 22;
 		return;
 	}
@@ -89,23 +120,22 @@ void ChatRoom::InitSocket(const int& port, bool& isOpen)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, logger);
+		errorHandler.HandleExceptionChatRoom(e, *logger);
 		throw 16;
 		return;
 	}
 
 	std::cout << "\n***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***" << std::endl;
 	std::cout << "Port : " << port << std::endl;
-	logger.WriteLine("\n***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***");
-	logger.WriteLine("Port : " + port);
+	logger->WriteLine("\n***CHATROOM INITIALISEE : DISCUSSION POSSIBLE***");
+	logger->WriteLine("Port : " + port);
 
 	bind(server, (sockaddr*)&sin, sizeof(sin));
 	listen(server, SOMAXCONN);
 
-	FD_ZERO(&master);
 	FD_SET(server, &master);
 
-	commandManager.InitCommands(WSM, server, master, logger, name);
+	commandManager->InitCommands(WSM, server, master, *logger, name);
 	isOpen = true;
 }
 
@@ -123,11 +153,11 @@ void ChatRoom::RoutineChatRoom()
 
 			//Vérification du nom
 			try {
-				logger.AddClient(clName);
+				logger->AddClient(clName);
 			}
 			catch (std::exception& e) {
 				WSM.SendMsg(client, "-1");
-				logger.WriteError("ERROR : ", e);
+				logger->WriteError("ERROR : ", e);
 				closesocket(client);
 				return;
 			}
@@ -136,7 +166,7 @@ void ChatRoom::RoutineChatRoom()
 			//Ajout client à la chatroom
 			FD_SET(client, &master);
 			std::cout << "***CLIENT CONNECTE A LA CHATROOM***" << std::endl;
-			logger.WriteLine("***CLIENT CONNECTE A LA CHATROOM***:\n");
+			logger->WriteLine("***CLIENT CONNECTE A LA CHATROOM***:\n");
 			std::string welcome = "Bonjour " + clName;
 			std::cout << welcome << std::endl;
 			welcome = "SERVER : " + welcome;
@@ -150,8 +180,8 @@ void ChatRoom::RoutineChatRoom()
 				}
 			}
 			WSM.SendMsg(client, welcome);
-			logger.WriteLine(">>" + msg);
-			logger.WriteLine(">>" + welcome);
+			logger->WriteLine(">>" + msg);
+			logger->WriteLine(">>" + welcome);
 		}
 		else {
 			//Réception commandes et messages
@@ -159,7 +189,7 @@ void ChatRoom::RoutineChatRoom()
 			WSM.RecieveMsg(sock, msg);
 			if (msg[0] == '/') {
 				//Réception commandes
-				logger.WriteLine("<<" + msg);
+				logger->WriteLine("<<" + msg);
 				std::string word = "";
 				std::vector<std::string> args;
 				for (unsigned int i = 1; i < msg.size(); i++) {
@@ -173,10 +203,10 @@ void ChatRoom::RoutineChatRoom()
 				args.push_back(word);
 				//Execution commandes
 				try {
-					commandManager.Execute(args, sock);
+					commandManager->Execute(args, sock);
 				}
 				catch (std::exception& e) {
-					errorHandler.HandleExceptionClient(WSM, e, sock, logger);
+					errorHandler.HandleExceptionClient(WSM, e, sock, *logger);
 				}
 			}
 			else {
@@ -188,7 +218,7 @@ void ChatRoom::RoutineChatRoom()
 				}
 				else {
 					std::cout << msg << std::endl;
-					logger.WriteLine(msg);
+					logger->WriteLine(msg);
 					for (unsigned int i = 0; i < master.fd_count; i++) {
 						SOCKET outSock = master.fd_array[i];
 						if (outSock != server && outSock != sock) {
@@ -199,4 +229,11 @@ void ChatRoom::RoutineChatRoom()
 			}
 		}
 	}
+}
+
+void ChatRoom::Close()
+{
+	closesocket(server);
+	logger->Save();
+	FD_ZERO(&master);
 }

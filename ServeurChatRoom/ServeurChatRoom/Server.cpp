@@ -4,13 +4,32 @@ Server::Server(const WinSockManager& WSM)
 {
 	this->WSM = WSM;
 	server = NULL;
+	FD_ZERO(&master);
 	std::cout << "***LANCEMENT DU SERVEUR***" << std::endl;
 	std::cout << "\nVeuillez entrer le port du server" << std::endl;
 }
 
+Server::Server(const Server& newServer)
+{
+	WSM = newServer.WSM;
+	server = newServer.server;
+	FD_ZERO(&master);
+	master = newServer.master;
+}
+
 Server::~Server()
 {
+	Close();
+}
+
+Server& Server::operator=(const Server& copyAssign)
+{
+	WSM = copyAssign.WSM;
 	closesocket(server);
+	server = copyAssign.server;
+	FD_ZERO(&master);
+	master = copyAssign.master;
+	return *this;
 }
 
 void Server::InitSocket(const int& port)
@@ -33,7 +52,6 @@ void Server::InitSocket(const int& port)
 
 	bind(server, (sockaddr*)&sin, sizeof(sin));
 	listen(server, SOMAXCONN);
-	FD_ZERO(&master);
 	FD_SET(server, &master);
 }
 
@@ -55,4 +73,10 @@ void Server::ServerRoutine()
 			std::cout << "Bonjour " << clName << std::endl;
 		}
 	}
+}
+
+void Server::Close()
+{
+	closesocket(server);
+	FD_ZERO(&master);
 }

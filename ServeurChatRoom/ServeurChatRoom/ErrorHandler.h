@@ -34,10 +34,9 @@ void TryCatchCheck(T f) {
 class ErrorHandler
 {
 public:
-	ErrorHandler();
-	~ErrorHandler();
+	ErrorHandler() = default;
 
-	void HandleExceptionClient(WinSockManager& WSM, const std::exception& e, const SOCKET& sock, Logger& log);
-	void HandleExceptionChatRoom(const std::exception& e, Logger& log);
+	void HandleExceptionClient(WinSockManager& WSM, const std::exception& e, const SOCKET& sock, Logger& log) const;
+	void HandleExceptionChatRoom(const std::exception& e, Logger& log) const;
 };
 

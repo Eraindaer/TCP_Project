@@ -5,6 +5,7 @@
 #include <Windows.h>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 #include <vector>
 #include <string>
 #include <map>
@@ -15,10 +16,11 @@ class WinSockManager
 {
 public:
 	WinSockManager();
-	~WinSockManager();
 
 	void			SendMsg(const SOCKET& sock, const std::string& msg);
 	void			RecieveMsg(const SOCKET& sock, std::string& msg);
+
+	void            Close() const;
 
 	std::string		Compression(std::string sentence, std::map<char, std::string>& code);
 	std::string		Decompression(std::map<char, std::string> code, std::string encodedText);

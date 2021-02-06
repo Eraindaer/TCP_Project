@@ -1,2 +1,10 @@
-﻿  WinSockManager.cpp
-  ServeurChatRoom.vcxproj -> G:\Repos\C++ Repos\ServeurChatRoom\server\ServeurChatRoom.exe
+﻿  ChatRoom.cpp
+  Client.cpp
+  CommandManager.cpp
+  ErrorHandler.cpp
+  Logger.cpp
+  Server.cpp
+  WinSockManager.cpp
+  main.cpp
+  Génération de code en cours...
+  ServeurChatRoom.vcxproj -> G:\Repos\Git Repos\Git TCP\ServeurChatRoom\server\ServeurChatRoom.exe

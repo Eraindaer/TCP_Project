@@ -10,7 +10,11 @@ class Logger
 {
 public:
 	Logger();
-	~Logger();
+	~Logger() = default;
+	Logger(const Logger&);
+	Logger(Logger&&) = default;
+	Logger& operator=(const Logger&);
+	Logger& operator=(Logger&&) = default;
 
 	void AddClient(const std::string& name);
 
