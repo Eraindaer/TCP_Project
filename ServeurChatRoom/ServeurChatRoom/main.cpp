@@ -4,11 +4,11 @@
 #include <thread>
 
 int main(int argc, char* argv[]) {
-	WinSockManager WSM;
 #ifdef CLIENT
 	//Initialisation du client
-	std::unique_ptr<Client> client = std::make_unique<Client>(WSM);
+	std::unique_ptr<Client> client = std::make_unique<Client>();
 	bool isConnected = false;
+	//Boucle identification client
 	while (!isConnected) {
 		int port;
 		std::cin >> port;
@@ -31,13 +31,14 @@ int main(int argc, char* argv[]) {
 #endif
 #ifdef CHATROOM
 	//Initialisation de la chatroom
-	std::unique_ptr<ChatRoom> chatRoom = std::make_unique<ChatRoom>(WSM);
+	std::unique_ptr<ChatRoom> chatRoom = std::make_unique<ChatRoom>();
 	int serverPort;
 	std::cin >> serverPort;
 
 	//Connexion au serveur général
 	TryCatchCheck([&chatRoom, &serverPort]() {chatRoom->InitServerConnection(serverPort); });
 	bool isOpen = false;
+	//Boucle création serveur
 	while (!isOpen) {
 		std::cin.ignore();
 		int chatRoomPort;
@@ -52,7 +53,7 @@ int main(int argc, char* argv[]) {
 #endif
 #ifdef SERVER
 	//Initialisation du serveur
-	std::unique_ptr<Server> server = std::make_unique<Server>(WSM); //ptr ?"
+	std::unique_ptr<Server> server = std::make_unique<Server>();
 	int port;
 	std::cin >> port;
 
@@ -64,6 +65,5 @@ int main(int argc, char* argv[]) {
 		server->ServerRoutine();
 	}
 #endif
-	WSM.Close();
 	return 0;
 }

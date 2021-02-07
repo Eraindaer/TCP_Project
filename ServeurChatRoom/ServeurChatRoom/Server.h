@@ -4,20 +4,19 @@
 class Server
 {
 public:
-	Server() = default;
-	Server(const WinSockManager& WSM);
-	Server(const Server&);
-	Server(Server&&) = default;
+	Server();
 	~Server();
+	Server(const Server&);
 	Server& operator=(const Server&);
-	Server& operator=(Server&&) = default;
+	Server(Server&&) = delete;
+	Server& operator=(Server&&) = delete;
 
 	void InitSocket(const int& port);
-	void ServerRoutine();
+	void ServerRoutine() const;
+	void Close() const;
 
-	void Close();
 private:
-	WinSockManager				WSM;
-	SOCKET						server;
-	fd_set						master;
+	std::unique_ptr<WinSockManager>				WSM = std::make_unique<WinSockManager>();
+	SOCKET										server;
+	fd_set										master;
 };

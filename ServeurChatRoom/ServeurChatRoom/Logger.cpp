@@ -13,6 +13,11 @@ Logger::Logger()
 	errorFile.open(errorFileName.c_str());
 }
 
+Logger::~Logger()
+{
+	Save();
+}
+
 Logger::Logger(const Logger& newLogger)
 {
 	clientList = newLogger.clientList;

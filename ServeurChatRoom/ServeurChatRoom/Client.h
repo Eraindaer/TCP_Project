@@ -4,22 +4,20 @@
 class Client
 {
 public:
-	Client() = default;
-	Client(const WinSockManager& WSM);
-	Client(const Client&);
-	Client(Client&&) = default;
+	Client();
 	~Client();
+	Client(const Client&);
 	Client& operator=(const Client&);
-	Client& operator=(Client&&) = default;
+	Client(Client&&) = delete;
+	Client& operator=(Client&&) = delete;
 
 	void InitSocket(const int& port, const std::string& name, bool& isConnected);
-
-	void SendingClient();
-	void ReceivingClient();
+	void SendingClient() const;
+	void ReceivingClient() const;
 	void Close() const;
 
 private:
-	WinSockManager		WSM;
-	std::string			name;
-	SOCKET				sock;
+	std::unique_ptr<WinSockManager>		WSM = std::make_unique<WinSockManager>();
+	std::string							name;
+	SOCKET								sock;
 };

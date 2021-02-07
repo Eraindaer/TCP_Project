@@ -1,29 +1,29 @@
 #include "Client.h"
 
-Client::Client(const WinSockManager& WSM)
+Client::Client()
 {
-	this->WSM = WSM;
 	sock = NULL;
 	std::cout << "***LANCEMENT DU CLIENT***" << std::endl;
 	std::cout << "\nVeuillez entrer le port indiqué sur l'une des chatrooms ainsi que votre nom" << std::endl;
 }
 
+Client::~Client()
+{
+	Close();
+	WSM->Close();
+}
+
 Client::Client(const Client& newClient)
 {
-	WSM = newClient.WSM;
+	WSM = std::make_unique<WinSockManager>(*newClient.WSM);
 	name = newClient.name;
 	sock = NULL;
 	sock = newClient.sock;
 }
 
-Client::~Client()
-{
-	Close();
-}
-
 Client& Client::operator=(const Client& copyAssign)
 {
-	WSM = copyAssign.WSM;
+	WSM = std::make_unique<WinSockManager>(*copyAssign.WSM);
 	name = copyAssign.name;
 	closesocket(sock);
 	sock = NULL;
@@ -58,9 +58,9 @@ void Client::InitSocket(const int& port, const std::string& name, bool& isConnec
 	}
 	//Tentative de connexion et vérification nom client
 	if (connect(sock, (sockaddr*)&sin, sizeof(sin)) != SOCKET_ERROR) {
-		WSM.SendMsg(sock, name);
+		WSM->SendMsg(sock, name);
 		std::string returnValue;
-		WSM.RecieveMsg(sock, returnValue);
+		WSM->RecieveMsg(sock, returnValue);
 		if (returnValue == "-1") {
 			throw 21;
 			return;
@@ -76,7 +76,7 @@ void Client::InitSocket(const int& port, const std::string& name, bool& isConnec
 	isConnected = true;
 }
 
-void Client::SendingClient()
+void Client::SendingClient() const
 {
 	std::string test;
 	std::getline(std::cin, test);
@@ -86,20 +86,20 @@ void Client::SendingClient()
 			std::cout << "***CHAT NETTOYE***\n\n";
 		}
 		else {
-			WSM.SendMsg(sock, test);
+			WSM->SendMsg(sock, test);
 		}
 	}
 	else {
 		std::string test2 = name + " : ";
 		test = test2 + test;
-		WSM.SendMsg(sock, test);
+		WSM->SendMsg(sock, test);
 	}
 }
 
-void Client::ReceivingClient()
+void Client::ReceivingClient() const
 {
 	std::string msg;
-	WSM.RecieveMsg(sock, msg);
+	WSM->RecieveMsg(sock, msg);
 	std::cout << msg << std::endl;
 }
 

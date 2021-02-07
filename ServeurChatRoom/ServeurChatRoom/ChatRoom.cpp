@@ -1,8 +1,7 @@
 #include "ChatRoom.h"
 
-ChatRoom::ChatRoom(const WinSockManager& WSM)
+ChatRoom::ChatRoom()
 {
-	this->WSM = WSM;
 	name = "chatroom";
 	server = NULL;
 	FD_ZERO(&master);
@@ -12,12 +11,18 @@ ChatRoom::ChatRoom(const WinSockManager& WSM)
 	logger->WriteLine("\nVeuillez entrer le port du serveur");
 }
 
+ChatRoom::~ChatRoom()
+{
+	Close();
+	WSM->Close();
+}
+
 ChatRoom::ChatRoom(const ChatRoom& newChatRoom)
 {
 	commandManager = std::make_unique<CommandManager>(*newChatRoom.commandManager);
 	logger = std::make_unique<Logger>(*newChatRoom.logger);
-	WSM = newChatRoom.WSM;
-	errorHandler = newChatRoom.errorHandler;
+	errorHandler = std::make_unique<ErrorHandler>(*newChatRoom.errorHandler);
+	WSM = std::make_unique<WinSockManager>(*newChatRoom.WSM);
 	name = newChatRoom.name;
 	server = NULL;
 	server = newChatRoom.server;
@@ -26,17 +31,12 @@ ChatRoom::ChatRoom(const ChatRoom& newChatRoom)
 	serverPort = newChatRoom.serverPort;
 }
 
-ChatRoom::~ChatRoom()
-{
-	Close();
-}
-
 ChatRoom& ChatRoom::operator=(const ChatRoom& copyAssign)
 {
 	commandManager = std::make_unique<CommandManager>(*copyAssign.commandManager);
 	logger = std::make_unique<Logger>(*copyAssign.logger);
-	WSM = copyAssign.WSM;
-	errorHandler = copyAssign.errorHandler;
+	errorHandler = std::make_unique<ErrorHandler>(*copyAssign.errorHandler);
+	WSM = std::make_unique<WinSockManager>(*copyAssign.WSM);
 	name = copyAssign.name;
 	closesocket(server);
 	server = NULL;
@@ -67,7 +67,7 @@ void ChatRoom::InitServerConnection(const int& port)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, *logger);
+		errorHandler->HandleExceptionChatRoom(e, *logger);
 		throw 16;
 		return;
 	}
@@ -83,11 +83,11 @@ void ChatRoom::InitServerConnection(const int& port)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, *logger);
+		errorHandler->HandleExceptionChatRoom(e, *logger);
 		throw 17;
 		return;
 	}
-	WSM.SendMsg(connectToServer, name);
+	WSM->SendMsg(connectToServer, name);
 	logger->WriteLine(">>" + name);
 	std::cout << "\nVeuillez entrer le port de la chatroom" << std::endl;
 	logger->WriteLine("\nVeuillez entrer le port de la chatroom");
@@ -101,7 +101,7 @@ void ChatRoom::InitSocket(const int& port, bool& isOpen)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, *logger);
+		errorHandler->HandleExceptionChatRoom(e, *logger);
 		throw 22;
 		return;
 	}
@@ -120,7 +120,7 @@ void ChatRoom::InitSocket(const int& port, bool& isOpen)
 		}
 	}
 	catch (std::exception& e) {
-		errorHandler.HandleExceptionChatRoom(e, *logger);
+		errorHandler->HandleExceptionChatRoom(e, *logger);
 		throw 16;
 		return;
 	}
@@ -135,11 +135,11 @@ void ChatRoom::InitSocket(const int& port, bool& isOpen)
 
 	FD_SET(server, &master);
 
-	commandManager->InitCommands(WSM, server, master, *logger, name);
+	commandManager->InitCommands(*WSM, server, master, *logger, name);
 	isOpen = true;
 }
 
-void ChatRoom::RoutineChatRoom()
+void ChatRoom::RoutineChatRoom() const
 {
 	fd_set copy = master;
 	int socketCount = select(0, &copy, nullptr, nullptr, nullptr);
@@ -149,19 +149,19 @@ void ChatRoom::RoutineChatRoom()
 			//Acceuil nouveaux clients
 			SOCKET client = accept(server, nullptr, nullptr);
 			std::string clName;
-			WSM.RecieveMsg(client, clName);
+			WSM->RecieveMsg(client, clName);
 
 			//Vérification du nom
 			try {
 				logger->AddClient(clName);
 			}
 			catch (std::exception& e) {
-				WSM.SendMsg(client, "-1");
+				WSM->SendMsg(client, "-1");
 				logger->WriteError("ERROR : ", e);
 				closesocket(client);
 				return;
 			}
-			WSM.SendMsg(client, "0");
+			WSM->SendMsg(client, "0");
 
 			//Ajout client à la chatroom
 			FD_SET(client, &master);
@@ -176,17 +176,17 @@ void ChatRoom::RoutineChatRoom()
 			for (unsigned int i = 0; i < master.fd_count; i++) {
 				SOCKET outSock = master.fd_array[i];
 				if (outSock != server) {
-					WSM.SendMsg(outSock, msg);
+					WSM->SendMsg(outSock, msg);
 				}
 			}
-			WSM.SendMsg(client, welcome);
+			WSM->SendMsg(client, welcome);
 			logger->WriteLine(">>" + msg);
 			logger->WriteLine(">>" + welcome);
 		}
 		else {
 			//Réception commandes et messages
 			std::string msg;
-			WSM.RecieveMsg(sock, msg);
+			WSM->RecieveMsg(sock, msg);
 			if (msg[0] == '/') {
 				//Réception commandes
 				logger->WriteLine("<<" + msg);
@@ -206,7 +206,7 @@ void ChatRoom::RoutineChatRoom()
 					commandManager->Execute(args, sock);
 				}
 				catch (std::exception& e) {
-					errorHandler.HandleExceptionClient(WSM, e, sock, *logger);
+					errorHandler->HandleExceptionClient(*WSM, e, sock, *logger);
 				}
 			}
 			else {
@@ -222,7 +222,7 @@ void ChatRoom::RoutineChatRoom()
 					for (unsigned int i = 0; i < master.fd_count; i++) {
 						SOCKET outSock = master.fd_array[i];
 						if (outSock != server && outSock != sock) {
-							WSM.SendMsg(outSock, msg);
+							WSM->SendMsg(outSock, msg);
 						}
 					}
 				}
@@ -231,7 +231,7 @@ void ChatRoom::RoutineChatRoom()
 	}
 }
 
-void ChatRoom::Close()
+void ChatRoom::Close() const
 {
 	closesocket(server);
 	logger->Save();

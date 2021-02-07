@@ -1,8 +1,10 @@
 ﻿  ChatRoom.cpp
+  Client.cpp
   CommandManager.cpp
   ErrorHandler.cpp
   Logger.cpp
   Server.cpp
+  WinSockManager.cpp
   main.cpp
   Génération de code en cours...
   ServeurChatRoom.vcxproj -> G:\Repos\Git Repos\Git TCP\ServeurChatRoom\client\ServeurChatRoom.exe

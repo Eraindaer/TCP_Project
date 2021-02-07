@@ -1,30 +1,30 @@
 #include "Server.h"
 
-Server::Server(const WinSockManager& WSM)
+Server::Server()
 {
-	this->WSM = WSM;
 	server = NULL;
 	FD_ZERO(&master);
 	std::cout << "***LANCEMENT DU SERVEUR***" << std::endl;
 	std::cout << "\nVeuillez entrer le port du server" << std::endl;
 }
 
+Server::~Server()
+{
+	Close();
+	WSM->Close();
+}
+
 Server::Server(const Server& newServer)
 {
-	WSM = newServer.WSM;
+	WSM = std::make_unique<WinSockManager>(*newServer.WSM);
 	server = newServer.server;
 	FD_ZERO(&master);
 	master = newServer.master;
 }
 
-Server::~Server()
-{
-	Close();
-}
-
 Server& Server::operator=(const Server& copyAssign)
 {
-	WSM = copyAssign.WSM;
+	WSM = std::make_unique<WinSockManager>(*copyAssign.WSM);
 	closesocket(server);
 	server = copyAssign.server;
 	FD_ZERO(&master);
@@ -32,7 +32,7 @@ Server& Server::operator=(const Server& copyAssign)
 	return *this;
 }
 
-void Server::InitSocket(const int& port)
+void Server::InitSocket(const int& port) 
 {
 	SOCKADDR_IN sin;
 	server = socket(AF_INET, SOCK_STREAM, 0);
@@ -55,7 +55,7 @@ void Server::InitSocket(const int& port)
 	FD_SET(server, &master);
 }
 
-void Server::ServerRoutine()
+void Server::ServerRoutine() const
 {
 	fd_set copy = master;
 
@@ -69,13 +69,13 @@ void Server::ServerRoutine()
 			FD_SET(client, &master);
 			std::cout << "Nouvelle chatroom créée" << std::endl;
 			std::string clName;
-			WSM.RecieveMsg(client, clName);
+			WSM->RecieveMsg(client, clName);
 			std::cout << "Bonjour " << clName << std::endl;
 		}
 	}
 }
 
-void Server::Close()
+void Server::Close() const
 {
 	closesocket(server);
 	FD_ZERO(&master);

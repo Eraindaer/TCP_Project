@@ -2,12 +2,27 @@
 
 WinSockManager::WinSockManager()
 {
-	WSAData wsa;
 	if (WSAStartup(MAKEWORD(2, 2), &wsa))
 		ExitProcess(EXIT_FAILURE);
 }
 
-void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg)
+WinSockManager::~WinSockManager()
+{
+	Close();
+}
+
+WinSockManager::WinSockManager(const WinSockManager& newWSM)
+{
+	wsa = newWSM.wsa;
+}
+
+WinSockManager& WinSockManager::operator=(const WinSockManager& copyAssign)
+{
+	wsa = copyAssign.wsa;
+	return *this;
+}
+
+void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg) const
 {
 	std::map<char, std::string> code;
 	std::string compressedMsg = Compression(msg, code);
@@ -48,7 +63,7 @@ void WinSockManager::SendMsg(const SOCKET& sock, const std::string& msg)
 		return;
 }
 
-void WinSockManager::RecieveMsg(const SOCKET& sock, std::string& msg)
+void WinSockManager::RecieveMsg(const SOCKET& sock, std::string& msg) const
 {
 	//Réception taille message initial
 	int size;
@@ -147,7 +162,7 @@ void WinSockManager::Close() const
 	WSACleanup();
 }
 
-std::string WinSockManager::Compression(std::string sentence, std::map<char, std::string>& code)
+std::string WinSockManager::Compression(std::string sentence, std::map<char, std::string>& code) const
 {
 	std::string copy = sentence;
 
@@ -216,7 +231,7 @@ std::string WinSockManager::Compression(std::string sentence, std::map<char, std
 	return encodedText;
 }
 
-std::string WinSockManager::Decompression(std::map<char, std::string> code, std::string encodedText)
+std::string WinSockManager::Decompression(std::map<char, std::string> code, std::string encodedText) const
 {
 	std::string encodedChar = "", decompressedText = "";
 

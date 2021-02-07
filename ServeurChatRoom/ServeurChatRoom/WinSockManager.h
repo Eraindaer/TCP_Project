@@ -16,12 +16,20 @@ class WinSockManager
 {
 public:
 	WinSockManager();
+	~WinSockManager();
+	WinSockManager(const WinSockManager&);
+	WinSockManager& operator=(const WinSockManager&);
+	WinSockManager(WinSockManager&&) = delete;
+	WinSockManager& operator=(WinSockManager&&) = delete;
 
-	void			SendMsg(const SOCKET& sock, const std::string& msg);
-	void			RecieveMsg(const SOCKET& sock, std::string& msg);
-
+	void			SendMsg(const SOCKET& sock, const std::string& msg) const;
+	void			RecieveMsg(const SOCKET& sock, std::string& msg) const;
 	void            Close() const;
 
-	std::string		Compression(std::string sentence, std::map<char, std::string>& code);
-	std::string		Decompression(std::map<char, std::string> code, std::string encodedText);
+private:
+	std::string		Compression(std::string sentence, std::map<char, std::string>& code) const;
+	std::string		Decompression(std::map<char, std::string> code, std::string encodedText) const;
+
+private:
+	WSAData		    wsa;
 };

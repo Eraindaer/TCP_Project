@@ -10,17 +10,15 @@ class Logger
 {
 public:
 	Logger();
-	~Logger() = default;
+	~Logger();
 	Logger(const Logger&);
-	Logger(Logger&&) = default;
 	Logger& operator=(const Logger&);
-	Logger& operator=(Logger&&) = default;
+	Logger(Logger&&) = delete;
+	Logger& operator=(Logger&&) = delete;
 
 	void AddClient(const std::string& name);
-
 	void WriteLine(const std::string& line);
 	void WriteError(const std::string& line, const std::exception& e);
-
 	void Save();
 
 private:
@@ -30,4 +28,3 @@ private:
 	std::string					fileName;
 	std::string					errorFileName;
 };
-

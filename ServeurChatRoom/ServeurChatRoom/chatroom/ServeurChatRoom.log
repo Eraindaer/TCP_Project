@@ -1,4 +1,6 @@
 ﻿  ChatRoom.cpp
+  Client.cpp
+  Server.cpp
   main.cpp
   Génération de code en cours...
   ServeurChatRoom.vcxproj -> G:\Repos\Git Repos\Git TCP\ServeurChatRoom\chatroom\ServeurChatRoom.exe
